@@ -66,10 +66,7 @@ class Image
          * Assign values for the colours and fonts.
          */
         $this->fonts();
-        $this->colours();
 
-        // Create box for writing texts.
-        $this->box();
 
     }
 
@@ -182,10 +179,17 @@ class Image
     {
         $this->imageCanvas =  imagecreatefromjpeg($this->imageSource);
 
-        $this->resize(); // Resize the image if larger than the desired dimensions.
+        // Resize the image if larger than the desired dimensions.
+        $this->resize();
+
+        // Create box for writing texts.
+        $this->box();
 
         // Text positions
         $this->position();
+
+        // Assign colours
+        $this->colours();
 
         // Get the array keys as variables with values.
         list($x, $y) = $this->titlePosition;
@@ -221,7 +225,13 @@ class Image
     {
         $this->imageCanvas = imagecreatetruecolor($this->constWidth, $this->constHeight);
 
+        // Create box for writing texts.
+        $this->box();
+
         $this->position(); // Assign positions for the text
+
+        // Assign colours
+        $this->colours();
 
         // Get the array keys as variables with values.
         list($x, $y) = $this->titlePosition;

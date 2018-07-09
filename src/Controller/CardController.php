@@ -80,7 +80,7 @@ class CardController
         // Pass the values to the Storage class.
         $storage = new Storage($this->image->text,$this->image->randomName[0].'jpg', app_base_dir().'file_storage/'.$this->image->randomName[0].'jpg');
         $storage->saveImage();
-        $storage->saveTexts();
+       // $storage->saveTexts();
 
         // Write text on the uploaded image.
         return $this->image->writeText();
