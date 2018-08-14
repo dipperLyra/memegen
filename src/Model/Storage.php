@@ -14,8 +14,6 @@ include_once __DIR__ . '/../../bootstrap.php';
 
 class Storage
 {
-    private $connection;
-
     public $message_id; // ID of the message saved in the database.
 
     public $image_id; // ID of the image
@@ -24,7 +22,7 @@ class Storage
 
     public $body; // The content or body
 
-    public $author; // Name of the person
+    public $footer; // Name of the person
 
     public $file_name; // Name that the image was saved with.
 
@@ -34,37 +32,45 @@ class Storage
     /*
      * Constructor to receive all the values for the class properties
      */
-    function __construct($text = array(), $file_name, $file_path)
+    function __construct($text)
     {
-        $this->connection = new Database();
 
-        $this->title = $text['title'];
-        $this->body = $text['body'];
-        $this->author = $text['author'];
-        $this->file_name = $file_name;
-        $this->file_path = $file_path;
+        $json = json_encode($text);
+        $decode = json_decode($json);
+
+        $this->title = $decode->title;
+        $this->body = $decode->body;
+        $this->footer = $decode->footer;
     }
+
 
     /*
     * Saves messages to the database.
     */
     public function saveTexts()
     {
-       // $connection = new Database();
+        $myDb = new Database();
 
-        $sql = "INSERT INTO content (header, body, footer, image_id) 
+        // Query to store the message written on the card
+        $sql = "INSERT INTO content (header, body, footer) 
                 VALUES (
-                :header, :body, :footer, 
-                (SELECT id FROM image)
+                :header, :body, :footer
                 )";
 
-        $stmt = $this->connection->conn->prepare($sql);
+        $stmt = $myDb->conn->prepare($sql);
         $stmt->bindValue(":header", $this->title, \PDO::PARAM_STR);
         $stmt->bindValue(":body", $this->body, \PDO::PARAM_STR);
-        $stmt->bindValue(":footer", $this->author, \PDO::PARAM_STR);
-        $stmt->bindValue(":image_id", $this->image_id, \PDO::PARAM_STR);
+        $stmt->bindValue(":footer", $this->footer, \PDO::PARAM_STR);
         $textSaver = $stmt->execute();
-        $this->message_id = $this->connection->conn->lastInsertId();
+        $this->message_id = $myDb->conn->lastInsertId();
+
+        // Query to insert the file path to the database.
+        $sql = "INSERT INTO image (file_path) VALUES (:filepath)";
+        $stmt = $myDb->conn->prepare($sql);
+        //$stmt->bindValue(":filename", $this->file_name, \PDO::PARAM_STR);
+        $stmt->bindValue(":filepath", $this->file_path, \PDO::PARAM_STR);
+        $stmt->execute();
+
         return $textSaver;
     }
 
@@ -73,16 +79,26 @@ class Storage
      */
     public function saveImage()
     {
-       // $connection = new Database();
+        $myDb = new Database();
 
         $sql = "INSERT INTO image (file_name, file_path) VALUES (:filename, :location)";
 
-        $stmt = $this->connection->conn->prepare($sql);
+        $stmt = $myDb->conn->prepare($sql);
         $stmt->bindValue(":filename", $this->file_name, \PDO::PARAM_STR);
         $stmt->bindValue(":location", $this->file_path, \PDO::PARAM_STR);
         $imageSaver = $stmt->execute();
-        $this->image_id = $this->connection->conn->lastInsertId();
+        $this->image_id = $myDb->conn->lastInsertId();
+
         return $imageSaver;
+    }
+
+    public function retrieveLast()
+    {
+        $myDb = new Database();
+
+        $sql = "SELECT file_path FROM image ORDER BY id DESC LIMIT 1 ";
+
+        $myDb->conn->exec($sql);
     }
 
     /*
@@ -90,11 +106,11 @@ class Storage
      */
     public function getCards()
     {
-        $connection =  new Database();
+        $myDb = new Database();
 
         $sql = "SELECT * FROM image"; // Query to select all from the db.
 
-        $stmt = $connection->conn->query($sql); // Execute the query.
+        $stmt = $myDb->conn->query($sql); // Execute the query.
 
         // Fetch all the data returned.
         $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
