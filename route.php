@@ -14,28 +14,43 @@ use API\Controller\CardController;
 $klein = new \Klein\Klein();
 
 // Send the text to be written on the card.
-$klein->post('/cards', function ($request, $response)
+$klein->post('/canvas', function ($request, $response) use ($klein)
 {
+    $message = ['message' => 'The image url is: '.'http://local.cardstorage.com/cards'];
+
+    $klein->response()->body();
+
     $cardContrl = new CardController();
-    $request->body($cardContrl->writePresetImage());
-    $message = ['message' => 'The record was successfully added to the db'];
+    $request->body($cardContrl->colourCanvas());
     $response->body(json_encode($message));
 });
 
-// Get a particular card using the id
-$klein->put('/cards', function ()
+// Send an image and text to be written on it.
+$klein->post('/cards', function ($request, $response)
 {
-    $cardContrl = new CardController();
-    $cardContrl->writeReceivedImage();
-//    $message = ['message' => 'The download link:  http://'];
-//    $response->body(json_encode($message));
+    $message = ['message' => 'The url to the resource is: http://local.cardstorage.com/cards/'];
 
+    $cardContrl = new CardController();
+    $request->body($cardContrl->imageCanvas());
+    $response->body(json_encode($message));
 });
 
-// Get the list of cards
-$klein->get('/cards', function ()
+// Get the list of cards available.
+$klein->get('/cards', function ($request, $response)
 {
     $cardContrl = new CardController();
+    $request->body($cardContrl->listCards());
+    $message = "The link to the" .' '.json_encode($cardContrl->list);
+    $response->body($message);
+});
+
+// Get the url of a single card
+$klein->get('/card', function ($request, $response)
+{
+    $cardContrl = new CardController();
+    $request->body($cardContrl->lastRecord());
+    $message = "Link to resource" .' '.json_encode($cardContrl->card);
+    $response->body($message);
 });
 
 // Update a card record

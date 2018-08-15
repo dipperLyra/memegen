@@ -1,6 +1,11 @@
 {
     "require": {
-        "klein/klein": "^2.1"
+        "klein/klein": "^2.1",
+        "robmorgan/phinx": "^0.10.3",
+        "stil/gd-text": "^1.1",
+        "ext-gd":"^2.0",
+        "ext-json":"",
+        "ext-pdo":""
     },
     "autoload": {
         "psr-4": {

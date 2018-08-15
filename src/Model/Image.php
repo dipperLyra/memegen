@@ -10,6 +10,9 @@ namespace API\Model;
 
 require_once __DIR__ . "/../../bootstrap.php";
 
+use GDText\Box;
+use GDText\Color;
+
 class Image
 {
     /*
@@ -32,6 +35,10 @@ class Image
     private $imageCanvas; // Image resource returned by imagecreatetruecolor
 
     public $randomName; // Random name to store the image
+
+    private $receivedImages = 'file_storage/images/'; // Location to store the images uploaded by the client
+
+    public $storagePath; // Storage path of the written image
 
     /*
      * Position and writing resources
@@ -165,17 +172,19 @@ class Image
     /*
      * Generate random names for the image
      */
-    function getRandomWord($len = 5)
+    function getRandomWord($len = 2)
     {
-        $this->randomName = array_merge(range('a', 'z'), range('A', 'Z'));
-        shuffle($this->randomName);
-        return substr(implode($this->randomName), 0, 5);
+        $arrayMerge = array_merge(range('a', 'z'));
+        shuffle($arrayMerge);
+        $string = implode($arrayMerge);
+        $randomName = substr($string, 0, $len);
+        return $randomName;
     }
 
     /*
-     * Write text on image canvas
+     * Write text on an image
      */
-    function writeText()
+    function writeTextOnImageCanvas()
     {
         $this->imageCanvas =  imagecreatefromjpeg($this->imageSource);
 
@@ -206,55 +215,52 @@ class Image
         // Write the footer
         imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['white'], $this->fonts['prisma'], $this->text['footer']);
 
-
-        // Set a random name that the image will be saved with.
-        $this->getRandomWord();
-
         // Save image to a file
-        $storagePath = app_base_dir().'/file_storage/'.$this->randomName[0].'.jpg';
-        return imagejpeg($this->imageCanvas, $storagePath);
-
-        // Free memory used for the image processing
-        //imagedestroy($this->imageCanvas);
+        $this->storagePath = app_base_dir() .'/'. $this->receivedImages . $this->getRandomWord(5).'.jpg';
+        imagejpeg($this->imageCanvas, $this->storagePath);
+        return $this->storagePath;
     }
 
-    /*
-     * Write text on preset image
-     */
-    function writeTextCanvas()
+    // Write on a canvas
+    function writeTextOnColourCanvas()
     {
-        $this->imageCanvas = imagecreatetruecolor($this->constWidth, $this->constHeight);
+        $img = imagecreatetruecolor(500, 500);
+        $backgroundColor = imagecolorallocate($img, 0, 18, 64);
+        imagefill($img, 0, 0, $backgroundColor);
 
-        // Create box for writing texts.
-        $this->box();
+        // Write on the image
+        $box = new Box($img);
+        $box->setFontFace(app_base_dir().'/public/resources/fonts/franchise/Franchise-Bold-hinted.ttf');
+        $box->setFontColor(new Color(255, 75, 140));
+        $box->setTextShadow(new Color(0,0,0,50), 2, 2);
+        $box->setFontSize(40);
+        $box->setBox(20, 20, 460, 460);
+        $box->setTextAlign('left', 'top');
+        $box->draw($this->text['title']);
 
-        $this->position(); // Assign positions for the text
+        $box = new Box($img);
+        $box->setFontFace(app_base_dir().'/public/resources/fonts/pacifico/Pacifico.ttf');
+        $box->setFontSize(40);
+        $box->setFontColor(new Color(255, 2555, 2555));
+        $box->setTextShadow(new Color(0, 0, 0, 50), 0, -2);
+        $box->setBox(20, 20, 460, 460);
+        $box->setTextAlign('center', 'center');
+        $box->draw($this->text['body']);
 
-        // Assign colours
-        $this->colours();
-
-        // Get the array keys as variables with values.
-        list($x, $y) = $this->titlePosition;
-        // Write the title
-        imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['white'], $this->fonts['franchise'], $this->text['title']);
-
-        // Get the x and y coordinates
-        list($x, $y) = $this->bodyPosition;
-        // Write the body.
-        imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['white'], $this->fonts['pacifico'], $this->text['body']);
-
-        // Get the x and y coordinates
-        list($x, $y) = $this->footerPosition;
-        // Write the footer
-        imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['white'], $this->fonts['prisma'], $this->text['footer']);
+        $box = new Box($img);
+        $box->setFontFace(app_base_dir().'/public/resources/fonts/prisma/Prisma.otf');
+        $box->setFontSize(40);
+        $box->setFontColor(new Color(148, 212, 1));
+        $box->setTextShadow(new Color(0, 0, 0, 50), 0, -2);
+        $box->setBox(20, 20, 460, 460);
+        $box->setTextAlign('right', 'bottom');
+        $box->draw($this->text['footer']);
 
 
-        // Set a random name that the image will be saved with.
-        $this->getRandomWord();
-
-        // Save image to a file
-        $storagePath = app_base_dir().'/file_storage/'.$this->randomName[0].'.jpg';
-        return imagejpeg($this->imageCanvas, $storagePath);
+        // Save the file and return to the user.
+        $this->storagePath = app_base_dir() .'/'. $this->receivedImages . $this->getRandomWord(5).'.jpg';
+        imagejpeg($img, $this->storagePath);
+        return $this->storagePath;
     }
 
     /*
@@ -262,17 +268,15 @@ class Image
      */
     function imageDownload()
     {
-        $file = 'meme.png';
-
-        if (file_exists($file)) {
+        if (file_exists($this->storagePath)) {
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'. basename($file) . '"');
+            header('Content-Disposition: attachment; filename="'. basename($this->storagePath) . '"');
             header('Exprires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
-            header('Content-Length: ' . filesize($file));
-            readfile($file);
+            header('Content-Length: ' . filesize($this->storagePath));
+            readfile($this->storagePath);
         }
     }
 }

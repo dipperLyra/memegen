@@ -28,13 +28,16 @@ class Storage
 
     public $file_path; // The image file path.
 
+    public $list; // The list retrieved from the db.
+
+    public $lastRecord; // The last card made.
+
 
     /*
-     * Constructor to receive all the values for the class properties
+     * Pass the received texts to class properties
      */
-    function __construct($text)
+    function receiveTexts($text)
     {
-
         $json = json_encode($text);
         $decode = json_decode($json);
 
@@ -43,12 +46,13 @@ class Storage
         $this->footer = $decode->footer;
     }
 
-
     /*
     * Saves messages to the database.
     */
     public function saveTexts()
     {
+        // Pass the received texts to class properties
+
         $myDb = new Database();
 
         // Query to store the message written on the card
@@ -98,7 +102,11 @@ class Storage
 
         $sql = "SELECT file_path FROM image ORDER BY id DESC LIMIT 1 ";
 
-        $myDb->conn->exec($sql);
+        $stmt = $myDb->conn->query($sql);
+
+        // Retrieve the last record
+        $this->lastRecord = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->lastRecord;
     }
 
     /*
@@ -108,13 +116,13 @@ class Storage
     {
         $myDb = new Database();
 
-        $sql = "SELECT * FROM image"; // Query to select all from the db.
+        $sql = "SELECT file_path FROM image"; // Query to select all from the db.
 
         $stmt = $myDb->conn->query($sql); // Execute the query.
 
         // Fetch all the data returned.
-        $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        return $list;
+        $this->list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->list;
     }
 
     /*

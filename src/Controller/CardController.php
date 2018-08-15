@@ -15,74 +15,106 @@ use API\Model\Storage;
 
 class CardController
 {
-    private $imagePath;
 
-    private $texts;
+    public $list; // The list of images in the database.
 
-    private $image;
+    public $card; // The last card made.
 
-    private $storageObject;
-
-
-
-    function __construct()
+    function imageObject()
     {
-        $this->image = new Image();
+        $image = new Image();
+        return $image;
     }
 
     // Call the write function from the Image class
     // Pass the value received from the use.
-    function writePresetImage()
+    function colourCanvas()
     {
+        // image object
+        $image = new Image();
+
         // Read in the json file sent and decode it.
         $json = file_get_contents("php://input");
         $texts = json_decode($json, true);
 
         // Assign the texts to be written
-        $this->image->text['title'] = $texts['title'];
-        $this->image->text['body'] = $texts['body'];
-        $this->image->text['footer'] = $texts['footer'];
+        $image->text['title'] = $texts['title'];
+        $image->text['body'] = $texts['body'];
+        $image->text['footer'] = $texts['footer'];
 
         // Assign the values to be sent to the db
-        $storage = new Storage($this->image->text,$this->image->randomName[0].'jpg', app_base_dir().'file_storage/'.$this->image->randomName[0].'jpg');
-
-        $storage->title = $this->texts['title'];
-        $storage->body = $this->texts['body'];
-        $storage->author = $this->texts['footer'];
-
-        // Save the texts to be written.
-         $storage->saveTexts();
+        $storage = new Storage();
+        $storage->receiveTexts($texts);
 
         // Write text on image.
-        return $this->image->writeTextCanvas();
+        $image->writeTextOnColourCanvas();
+
+        // Pass the file path to be stored in the database.
+        $storage->file_path = $image->storagePath;
+
+        // Save the texts written.
+        $storage->saveTexts();
+
+        return $storage->file_path;
     }
 
-    function writeReceivedImage()
+    function imageCanvas()
     {
+        // image object
+        $image = new Image();
+
         // Read in the json file sent and decode it.
         $json = file_get_contents("php://input");
-        $decodeJson = json_decode($json, true);
+        $texts = json_decode($json, true);
 
-        $image_url= $decodeJson['image_url'];
+        $image_url= $texts['image_url'];
 
         // Save the uploaded to the system tmp_path
         $tmpName = tempnam('/tmp', 'meme-');
         file_put_contents($tmpName, file_get_contents($image_url));
 
         // Path the url of the source image
-        $this->image->imageSource = $image_url;
+        $image->imageSource = $image_url;
 
         // Assign the texts to be written
-        $this->image->text['title'] = $decodeJson['title'];
-        $this->image->text['body'] = $decodeJson['body'];
-        $this->image->text['footer'] = $decodeJson['footer'];
+        $image->text['title'] = $texts['title'];
+        $image->text['body'] = $texts['body'];
+        $image->text['footer'] = $texts['footer'];
 
         // Pass the values to the Storage class.
-        $storage = new Storage($this->image->text,$this->image->randomName[0].'jpg', app_base_dir().'file_storage/'.$this->image->randomName[0].'jpg');
-        $storage->saveImage();
-       // $storage->saveTexts();
+        $storage = new Storage();
+        $storage->receiveTexts($texts);
 
         // Write text on the uploaded image.
-        return $this->image->writeText();
+        $image->writeTextOnImageCanvas();
+
+        // Pass the file path to stored in the database.
+        $storage->file_path = $image->storagePath;
+
+        //$storage->saveImage();
+        $storage->saveTexts();
+
+        return $storage->file_path;
+    }
+    /*
+     * Makes a call to Storage to retrieve the last record
+     */
+    public function lastRecord()
+    {
+        $storage = new Storage();
+        $storage->retrieveLast();
+        $this->card = $storage->lastRecord;
+        return $this->card;
+    }
+
+    /*
+     * Makes a call to the Storage class to retrieve samples of cards made
+     */
+    public function listCards()
+    {
+        $storage = new Storage();
+        $storage->getCards();
+        $this->list = $storage->list;
+        return $this->list;
     }
 }
