@@ -12,6 +12,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 use API\Model\Image;
 use API\Model\Storage;
+use http\Exception\BadMessageException;
 
 class CardController
 {
@@ -20,11 +21,7 @@ class CardController
 
     public $card; // The last card made.
 
-    function imageObject()
-    {
-        $image = new Image();
-        return $image;
-    }
+    public $filepath;
 
     // Call the write function from the Image class
     // Pass the value received from the use.
@@ -38,9 +35,24 @@ class CardController
         $texts = json_decode($json, true);
 
         // Assign the texts to be written
-        $image->text['title'] = $texts['title'];
-        $image->text['body'] = $texts['body'];
-        $image->text['footer'] = $texts['footer'];
+        $image->text['title'] = htmlentities($texts['title'], ENT_QUOTES, "UTF-8");
+        $image->text['body'] = htmlentities($texts['body'], ENT_QUOTES, "UTF-8");
+        $image->text['footer'] = htmlentities($texts['footer'], ENT_QUOTES, "UTF-8");
+
+        if (isset($texts['headerColour'], $texts['bodyColour'], $texts['footerColour'])) {
+            $image->headerColour = htmlentities($texts['headerColour'], ENT_QUOTES, "UTF-8");
+            $image->bodyColour = htmlentities($texts['bodyColour'], ENT_QUOTES, "UTF-8");
+            $image->footerColour = htmlentities($texts['footerColour'], ENT_QUOTES, "UTF-8");
+        }
+
+        if (isset($texts['fontSize'])) {
+            $image->headerFont = htmlentities($texts['headerFont'], ENT_QUOTES, "UTF-8");
+            $image->bodyFont = htmlentities($texts['bodyFont'], ENT_QUOTES, "UTF-8");
+            $image->footerFont = htmlentities($texts['footerFont'], ENT_QUOTES, "UTF-8");
+        } else {
+            $image->fontSize = htmlentities($texts['fontSize'], ENT_QUOTES, "UTF-8");
+        }
+
 
         // Assign the values to be sent to the db
         $storage = new Storage();
@@ -58,16 +70,22 @@ class CardController
         return $storage->file_path;
     }
 
+    /*
+     *  Handles call to the function to write on an image. It passes the required arguments.
+     */
     function imageCanvas()
     {
         // image object
         $image = new Image();
 
+        // Storage object.
+        $storage = new Storage();
+
         // Read in the json file sent and decode it.
         $json = file_get_contents("php://input");
         $texts = json_decode($json, true);
 
-        $image_url= $texts['image_url'];
+        $image_url = $texts['image_url'];
 
         // Save the uploaded to the system tmp_path
         $tmpName = tempnam('/tmp', 'meme-');
@@ -77,12 +95,25 @@ class CardController
         $image->imageSource = $image_url;
 
         // Assign the texts to be written
-        $image->text['title'] = $texts['title'];
-        $image->text['body'] = $texts['body'];
-        $image->text['footer'] = $texts['footer'];
+        $image->text['title'] = htmlentities($texts['title'], ENT_QUOTES, "UTF-8");
+        $image->text['body'] = htmlentities($texts['body'], ENT_QUOTES, "UTF-8");
+        $image->text['footer'] = htmlentities($texts['footer'], ENT_QUOTES, "UTF-8");
 
-        // Pass the values to the Storage class.
-        $storage = new Storage();
+        // Pass the font size to be used
+        if (!isset($texts['fontSize'])) {
+            $image->headerFont = htmlentities($texts['headerFont'], ENT_QUOTES, "UTF-8");
+            $image->bodyFont = htmlentities($texts['bodyFont'], ENT_QUOTES, "UTF-8");
+            $image->footerFont = htmlentities($texts['footerFont'], ENT_QUOTES, "UTF-8");
+        } else {
+            $image->fontSize = htmlentities($texts['fontSize'], ENT_QUOTES, "UTF-8");
+        }
+
+        // Assign the chosen colour
+        if (isset($texts['headerColour'])) $image->headerColour = htmlentities($texts['headerColour'], ENT_QUOTES, "UTF-8");
+        if (isset($texts['bodyColour'])) $image->bodyColour = htmlentities($texts['bodyColour'], ENT_QUOTES, "UTF-8");
+        if (isset($texts['footerColour'])) $image->footerColour = htmlentities($texts['footerColour'], ENT_QUOTES, "UTF-8");
+
+        // Pass the texts to the Storage Class
         $storage->receiveTexts($texts);
 
         // Write text on the uploaded image.
@@ -90,6 +121,8 @@ class CardController
 
         // Pass the file path to stored in the database.
         $storage->file_path = $image->storagePath;
+
+        $this->filepath = & $storage->file_path;
 
         //$storage->saveImage();
         $storage->saveTexts();

@@ -28,11 +28,11 @@ $klein->post('/canvas', function ($request, $response) use ($klein)
 // Send an image and text to be written on it.
 $klein->post('/cards', function ($request, $response)
 {
-    $message = ['message' => 'The url to the resource is: http://local.cardstorage.com/cards/'];
+    $message = ['message' => 'The url to the resource is: '];
 
     $cardContrl = new CardController();
     $request->body($cardContrl->imageCanvas());
-    $response->body(json_encode($message));
+    echo ($message['message']."\n".$cardContrl->filepath);
 });
 
 // Get the list of cards available.

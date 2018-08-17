@@ -59,9 +59,21 @@ class Image
 
     private $colours = array();
 
+    public $headerColour;
+
+    public $bodyColour;
+
+    public $footerColour;
+
     private $fonts = array();
 
-    private $fontSize = 20;
+    public $fontSize;
+
+    public $headerFont;
+
+    public $bodyFont;
+
+    public $footerFont;
 
     private $writeAngle = 0;
 
@@ -93,8 +105,7 @@ class Image
         if (1 > $ratio) {
             $this->width = $this->constHeight * $ratio;
             return $this->width;
-        }
-        else {
+        } else {
             $this->height = $this->constWidth / $ratio;
             return $this->height;
         }
@@ -112,13 +123,34 @@ class Image
     }
 
     /*
-     *
+     *  Assign colours
      */
     private function colours()
     {
         $this->colours['black'] = imagecolorallocate($this->imageCanvas, 0, 0, 0);
         $this->colours['white'] = imagecolorallocate($this->imageCanvas, 255, 255, 255);
         $this->colours['red'] = imagecolorallocate($this->imageCanvas, 255, 0, 0);
+    }
+
+    /*
+     *  Handles the logic to choose a particular colour.
+     */
+    public function whichColour()
+    {
+        // Check the colour for the header
+        if ($this->headerColour == "r") $this->headerColour = $this->colours['red'];
+        if ($this->headerColour == "w") $this->headerColour = $this->colours['white'];
+        if ($this->headerColour == "b") $this->headerColour = $this->colours['black'];
+
+        // Check the colour to asssign to the body
+        if ($this->bodyColour == "r") $this->bodyColour = $this->colours['red'];
+        if ($this->bodyColour == "w") $this->bodyColour = $this->colours['white'];
+        if ($this->bodyColour == "b") $this->bodyColour = $this->colours['black'];
+
+        // Check the colour to assign to the footer
+        if ($this->footerColour == "r") $this->footerColour = $this->colours['red'];
+        if ($this->footerColour == "w") $this->footerColour = $this->colours['white'];
+        if ($this->footerColour == "b") $this->footerColour = $this->colours['black'];
     }
 
     /*
@@ -182,6 +214,17 @@ class Image
     }
 
     /*
+     * Wrap the text
+     */
+    function wrapText($text)
+    {
+        $text['title'] = wordwrap($this->text['title'], 15, "\n", false);
+        $text['body'] = wordwrap($this->text['body'], 40, "\n", false);
+        $text['footer'] = wordwrap($this->text['footer'], 25, "\n", false);
+        return $text;
+    }
+
+    /*
      * Write text on an image
      */
     function writeTextOnImageCanvas()
@@ -200,20 +243,36 @@ class Image
         // Assign colours
         $this->colours();
 
+        $this->whichColour();
+
         // Get the array keys as variables with values.
         list($x, $y) = $this->titlePosition;
-        // Write the title
-        imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['white'], $this->fonts['franchise'], $this->text['title']);
+
+        // Write the title: check if the user set a font type, if no use a fixed font size (20).
+        if (!isset($this->headerFont, $this->headerColour)) {
+            imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['red'], $this->fonts['franchise'], wordwrap($this->text['title'], 15, "\n", false));
+        } else {
+            imagettftext($this->imageCanvas, $this->headerFont, $this->writeAngle, $x, $y, $this->headerColour, $this->fonts['franchise'], wordwrap($this->text['title'],  15, "\n", false));
+        }
 
         // Get the x and y coordinates
         list($x, $y) = $this->bodyPosition;
         // Write the body.
-        imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['white'], $this->fonts['pacifico'], $this->text['body']);
+        if (!isset($this->bodyFont, $this->bodyColour)) {
+            imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['black'], $this->fonts['pacifico'], wordwrap($this->text['body'],  35, "\n", false));
+        } else {
+            imagettftext($this->imageCanvas, $this->bodyFont, $this->writeAngle, $x, $y, $this->bodyColour, $this->fonts['pacifico'], wordwrap($this->text['body'], 35, "\n", false));
+        }
 
         // Get the x and y coordinates
         list($x, $y) = $this->footerPosition;
+
         // Write the footer
-        imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['white'], $this->fonts['prisma'], $this->text['footer']);
+        if (!isset($this->footerFont, $this->footerColour)) {
+            imagettftext($this->imageCanvas, $this->fontSize, $this->writeAngle, $x, $y, $this->colours['white'], $this->fonts['prisma'], wordwrap($this->text['footer'],  15, "\n", false));
+        } else {
+            imagettftext($this->imageCanvas, $this->footerFont, $this->writeAngle, $x, $y, $this->footerColour, $this->fonts['prisma'], wordwrap($this->text['footer'],  15, "\n", false));
+        }
 
         // Save image to a file
         $this->storagePath = app_base_dir() .'/'. $this->receivedImages . $this->getRandomWord(5).'.jpg';

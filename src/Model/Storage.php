@@ -51,49 +51,30 @@ class Storage
     */
     public function saveTexts()
     {
-        // Pass the received texts to class properties
-
         $myDb = new Database();
 
+        $sql = "INSERT INTO image (file_path) VALUE (:filepath)";
+        $stmt = $myDb->conn->prepare($sql);
+        $stmt->bindValue(":filepath", $this->file_path, \PDO::PARAM_STR);
+        $stmt->execute();
+
         // Query to store the message written on the card
-        $sql = "INSERT INTO content (header, body, footer) 
-                VALUES (
-                :header, :body, :footer
-                )";
+        $sql = "     
+                INSERT INTO content (header, body, footer, image_id) 
+                        VALUES (:header, :body, :footer, LAST_INSERT_ID())                             
+               ";
 
         $stmt = $myDb->conn->prepare($sql);
+//        $stmt->bindValue(":filename", $this->file_name, \PDO::PARAM_STR);
+//        $stmt->bindValue(":location", $this->file_path, \PDO::PARAM_STR);
         $stmt->bindValue(":header", $this->title, \PDO::PARAM_STR);
         $stmt->bindValue(":body", $this->body, \PDO::PARAM_STR);
         $stmt->bindValue(":footer", $this->footer, \PDO::PARAM_STR);
         $textSaver = $stmt->execute();
+
         $this->message_id = $myDb->conn->lastInsertId();
 
-        // Query to insert the file path to the database.
-        $sql = "INSERT INTO image (file_path) VALUES (:filepath)";
-        $stmt = $myDb->conn->prepare($sql);
-        //$stmt->bindValue(":filename", $this->file_name, \PDO::PARAM_STR);
-        $stmt->bindValue(":filepath", $this->file_path, \PDO::PARAM_STR);
-        $stmt->execute();
-
         return $textSaver;
-    }
-
-    /*
-     * Save image properties
-     */
-    public function saveImage()
-    {
-        $myDb = new Database();
-
-        $sql = "INSERT INTO image (file_name, file_path) VALUES (:filename, :location)";
-
-        $stmt = $myDb->conn->prepare($sql);
-        $stmt->bindValue(":filename", $this->file_name, \PDO::PARAM_STR);
-        $stmt->bindValue(":location", $this->file_path, \PDO::PARAM_STR);
-        $imageSaver = $stmt->execute();
-        $this->image_id = $myDb->conn->lastInsertId();
-
-        return $imageSaver;
     }
 
     public function retrieveLast()
