@@ -26,20 +26,18 @@ class CardController
     // Call the write function from the Image class
     // Pass the value received from the use.
     function colourCanvas()
-    { 
-
+    {
         // Read in the json file sent and decode it.
         $json = file_get_contents("php://input");
         $texts = json_decode($json, true);
         
         // image object
-        $image = new Image(htmlentities($texts, ENT_QUOTES, "UTF-8"));
+        $image = new Image($texts);
         
+        //var_dump($image->param);
         // Write text on image.
         return $image->writeTextOnColourCanvas();
-       }
-
-       
+    }
 
     /*
      *  Handles call to the function to write on an image. It passes the required arguments.
@@ -81,6 +79,7 @@ class CardController
 
         return $storage->file_path;
     }
+
     /*
      * Makes a call to Storage to retrieve the last record
      */
