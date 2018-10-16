@@ -14,11 +14,12 @@ use API\Controller\CardController;
 $klein = new \Klein\Klein();
 
 // Send the text to be written on the card.
-$klein->post('/canvas', function ($request, $response) use ($klein)
+$klein->get('/canvas', function ($request, $response) use ($klein)
 {
+    
     $message = ['message' => 'The image url is: '.'http://local.cardstorage.com/cards'];
 
-    $klein->response()->body();
+ //   $klein->response()->body();
 
     $cardContrl = new CardController();
     $request->body($cardContrl->colourCanvas());

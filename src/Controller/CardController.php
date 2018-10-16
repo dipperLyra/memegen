@@ -26,49 +26,20 @@ class CardController
     // Call the write function from the Image class
     // Pass the value received from the use.
     function colourCanvas()
-    {
-        // image object
-        $image = new Image();
+    { 
 
         // Read in the json file sent and decode it.
         $json = file_get_contents("php://input");
         $texts = json_decode($json, true);
-
-        // Assign the texts to be written
-        $image->text['title'] = htmlentities($texts['title'], ENT_QUOTES, "UTF-8");
-        $image->text['body'] = htmlentities($texts['body'], ENT_QUOTES, "UTF-8");
-        $image->text['footer'] = htmlentities($texts['footer'], ENT_QUOTES, "UTF-8");
-
-        if (isset($texts['headerColour'], $texts['bodyColour'], $texts['footerColour'])) {
-            $image->headerColour = htmlentities($texts['headerColour'], ENT_QUOTES, "UTF-8");
-            $image->bodyColour = htmlentities($texts['bodyColour'], ENT_QUOTES, "UTF-8");
-            $image->footerColour = htmlentities($texts['footerColour'], ENT_QUOTES, "UTF-8");
-        }
-
-        if (isset($texts['fontSize'])) {
-            $image->headerFont = htmlentities($texts['headerFont'], ENT_QUOTES, "UTF-8");
-            $image->bodyFont = htmlentities($texts['bodyFont'], ENT_QUOTES, "UTF-8");
-            $image->footerFont = htmlentities($texts['footerFont'], ENT_QUOTES, "UTF-8");
-        } else {
-            $image->fontSize = htmlentities($texts['fontSize'], ENT_QUOTES, "UTF-8");
-        }
-
-
-        // Assign the values to be sent to the db
-        $storage = new Storage();
-        $storage->receiveTexts($texts);
-
+        
+        // image object
+        $image = new Image(htmlentities($texts, ENT_QUOTES, "UTF-8"));
+        
         // Write text on image.
-        $image->writeTextOnColourCanvas();
+        return $image->writeTextOnColourCanvas();
+       }
 
-        // Pass the file path to be stored in the database.
-        $storage->file_path = $image->storagePath;
-
-        // Save the texts written.
-        $storage->saveTexts();
-
-        return $storage->file_path;
-    }
+       
 
     /*
      *  Handles call to the function to write on an image. It passes the required arguments.
@@ -93,25 +64,6 @@ class CardController
 
         // Path the url of the source image
         $image->imageSource = $image_url;
-
-        // Assign the texts to be written
-        $image->text['title'] = htmlentities($texts['title'], ENT_QUOTES, "UTF-8");
-        $image->text['body'] = htmlentities($texts['body'], ENT_QUOTES, "UTF-8");
-        $image->text['footer'] = htmlentities($texts['footer'], ENT_QUOTES, "UTF-8");
-
-        // Pass the font size to be used
-        if (!isset($texts['fontSize'])) {
-            $image->headerFont = htmlentities($texts['headerFont'], ENT_QUOTES, "UTF-8");
-            $image->bodyFont = htmlentities($texts['bodyFont'], ENT_QUOTES, "UTF-8");
-            $image->footerFont = htmlentities($texts['footerFont'], ENT_QUOTES, "UTF-8");
-        } else {
-            $image->fontSize = htmlentities($texts['fontSize'], ENT_QUOTES, "UTF-8");
-        }
-
-        // Assign the chosen colour
-        if (isset($texts['headerColour'])) $image->headerColour = htmlentities($texts['headerColour'], ENT_QUOTES, "UTF-8");
-        if (isset($texts['bodyColour'])) $image->bodyColour = htmlentities($texts['bodyColour'], ENT_QUOTES, "UTF-8");
-        if (isset($texts['footerColour'])) $image->footerColour = htmlentities($texts['footerColour'], ENT_QUOTES, "UTF-8");
 
         // Pass the texts to the Storage Class
         $storage->receiveTexts($texts);
