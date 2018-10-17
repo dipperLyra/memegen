@@ -48,19 +48,12 @@ class CardController
         $json = file_get_contents("php://input");
         $texts = json_decode($json, true);
 
-        $image_url = $texts['image_url'];
-
-        // Save the uploaded to the system tmp_path
-        $tmpName = tempnam('/tmp', 'meme-');
-        file_put_contents($tmpName, file_get_contents($image_url));
-             
+        // image object
         $image = new Image($texts);
-
-        // Path the url of the source image
-        $image->imageSource = $image_url;
-
+        $image->assignPosition();
+        
         // Write text on the uploaded image.
-        $image->writeTextOnPic();
+        return $image->writeTextOnPic();
     }
 
     /*
