@@ -100,6 +100,11 @@ class Image
     * specified by the user.
     */
     private $colours;
+    private $black;
+    private $white;
+    private $yellow;
+    private $green;
+    private $red;
 
     /*
     * For each text entered by the user a specific can be specified,
@@ -130,21 +135,21 @@ class Image
     private $bodyFontSize;
     private $footerFontSize;
     
-    
 
     function __construct($param)
     {
         $this->setImageProperties($param);
         $this->fonts();
-
         $this->image = imagecreatetruecolor($this->width, $this->height);
-        $this->colours();
+        //$this->colours();
+        $this->assignFontType();
         $this->box();
+        //$this->assignPosition();
     }
 
     public function setImageProperties(array $param)
     {
-        /*
+       /*
        * Pass all the values ($text) passed as argument to the
        * constructor to the field property $this->text
        */
@@ -154,12 +159,16 @@ class Image
         * Assign the values to the corresponding class
         * properties that are required to be separate from the beginning.
         */
+        if (isset($this->param['image_url'])) $this->imagePath = $this->param['image_url'];
         if (isset($this->param['title'])) $this->text['title'] = $this->param['title'];
         if (isset($this->param['body'])) $this->text['body'] = $this->param['body'];
         if (isset($this->param['footer'])) $this->text['footer'] = $this->param['footer'];
-        if (isset($this->param['header_position'])) $this->headerPosition = $this->param['header_position'];
+        if (isset($this->param['header_position'])) $this->titlePosition = $this->param['header_position'];
         if (isset($this->param['body_position'])) $this->bodyPosition = $this->param['body_position'];
         if (isset($this->param['footer_position'])) $this->footerPosition = $this->param['footer_position'];
+        if (isset($this->param['header_colour'])) $this->headerColour = $this->param['header_colour'];
+        if (isset($this->param['body_colour'])) $this->bodyColour = $this->param['body_colour'];
+        if (isset($this->param['footer_colour'])) $this->footerColour = $this->param['footer_colour'];
         if (isset($this->param['hd_font_type'])) $this->headerFontType = $this->param['hd_font_type'];
         if (isset($this->param['bd_font_type'])) $this->bodyFontType = $this->param['bd_font_type'];
         if (isset($this->param['ft_font_type'])) $this->footerFontType = $this->param['ft_font_type'];
@@ -193,7 +202,6 @@ class Image
         } else {
             $this->footerAngle = 0;
         }
-
     }
 
     /*
@@ -202,7 +210,7 @@ class Image
      */
     function box()
     {
-        $this->assignFontType();
+        
 
         // Do a wordwrap before making the box.
         $this->wrappedHeader = wordwrap($this->text['title'], 30, "\n");
@@ -232,11 +240,11 @@ class Image
      */
     private function colours()
     {
-        $this->colours['black'] = imagecolorallocate($this->image, 0, 0, 0);
-        $this->colours['white'] = imagecolorallocate($this->image, 255, 255, 255);
-        $this->colours['red'] = imagecolorallocate($this->image, 255, 0, 0);
-        $this->colours['yellow'] = imagecolorallocate($this->image, 255, 255, 0);
-        $this->colours['green'] = imagecolorallocate($this->image, 0, 100, 0);
+        $this->black = imagecolorallocate($this->image, 0, 0, 0);
+        $this->white = imagecolorallocate($this->image, 255, 255, 255);
+        $this->red = imagecolorallocate($this->image, 255, 0, 0);
+        $this->yellow = imagecolorallocate($this->image, 255, 255, 0);
+        $this->green = imagecolorallocate($this->image, 0, 100, 0);
     }
 
     /*
@@ -252,10 +260,10 @@ class Image
      * Get the image file and check the dimensions.
      * Assign the values to class properties.
      */
-    function resizeImage()
+    function resizeImage($imagePath)
     {
         // Get the dimension of the original image as an array
-        list($fileWidth, $fileHeight) = getimagesize($this->getImagePath());
+        list($fileWidth, $fileHeight) = getimagesize($imagePath);
 
         // Check the ratio of the new image and reassign new width and height if necessary
         $ratio = $fileWidth / $fileHeight;
@@ -267,7 +275,7 @@ class Image
         }
 
         // Resample
-        $source = imagecreatefrompng($this->imagePath);
+        $source = imagecreatefrompng($imagePath);
         $this->image = imagecreatetruecolor($this->width, $this->height);
 
         imagecopyresampled($this->image, $source, 0, 0, 0, 0, $this->width, $this->height, $fileWidth, $fileHeight);
@@ -284,27 +292,30 @@ class Image
     {
         // Retrieves the width and height which is used to set the X and Y coordinates.
          $x = $this->headerBox[0] ;
-         $y = $this->headerBox[1] + 25;
+         $y = $this->headerBox[1] + 35;
 
         $this->titlePosition = array($x, $y);
+        return $this->titlePosition;
     }
 
     function topMiddle()
     {
         // Retrieves the width and height which is used to set the X and Y coordinates.
         $x = (imagesx($this->image)/2) - ($this->headerBox[2]/2);
-        $y = $this->headerBox[1] + 25;
+        $y = $this->headerBox[1] + 35;
 
         $this->titlePosition = array($x, $y);
+        return $this->titlePosition;
     }
 
     function topRight()
     {
         // Retrieves the width and height which is used to set the X and Y coordinates.
         $x = imagesx($this->image) - $this->headerBox[2] - 25;
-        $y = $this->headerBox[1] + 25;
+        $y = $this->headerBox[1] + 35;
 
         $this->titlePosition = array($x, $y);
+        return $this->titlePosition;
     }
 
     function middleLeft()
@@ -314,6 +325,7 @@ class Image
         $y = (imagesy($this->image)/2) - (imagesy($this->image)/8);
 
         $this->bodyPosition = array($x, $y);
+        return $this->bodyPosition;
     }
 
     function centre()
@@ -323,6 +335,7 @@ class Image
         $y = (imagesy($this->image)/2) - (imagesy($this->image)/8);
      
         $this->bodyPosition = array($x, $y);
+        return $this->bodyPosition;
     }
 
     function middleRight()
@@ -332,6 +345,7 @@ class Image
         $y = (imagesy($this->image)/2) - (imagesy($this->image)/8);
 
         $this->bodyPosition = array($x, $y);
+        return $this->bodyPosition;
     }
 
     function bottomLeft()
@@ -341,6 +355,7 @@ class Image
         $y = (imagesy($this->image)/2) + (imagesy($this->image)/8);
 
         $this->footerPosition = array($x, $y);
+        return $this->footerPosition;
     }
 
     function bottomCentre()
@@ -350,6 +365,7 @@ class Image
         $y = (imagesy($this->image)/2) + (imagesy($this->image)/8);
 
         $this->footerPosition = array($x, $y);
+        return $this->footerPosition;
     }
 
     function bottomRight()
@@ -359,6 +375,7 @@ class Image
         $y = (imagesy($this->image)/2) + (imagesy($this->image)/8);
 
         $this->footerPosition = array($x, $y);
+        return $this->footerPosition;
     }     
 
     /*
@@ -373,40 +390,65 @@ class Image
      /*
      *  Handles the logic to choose a particular colour.
      */
-    public function whichColour()
+    public function assignColour()
     {
+        $this->colours();
         // Check the colour for the header
         switch ($this->headerColour) {
-            case 'red':
-                $this->headerColour = $this->colours['red'];
+            case "red":
+                $this->headerColour = $this->red;
                 break;
-            case 'white':
-                $this->headerColour = $this->colours['white'];      
+            case "white":
+                $this->headerColour = $this->white;      
                 break;
-            case 'black':
-                $this->headerColour= $this->colours['black'];
+            case "black":
+                $this->headerColour = $this->black;
+            case "yellow":
+                $this->headerColour = $this->yellow;
+                break;
+            case "green":
+                $this->headerColour = $this->green;
+                break;
+            default: 
+                $this->headerColour = $this->white;
         }            
         switch ($this->bodyColour) {
-            case 'red':
-                $this->bodyColour = $this->colours['red'];
+            case "red":
+                $this->bodyColour = $this->red;
                 break;
-            case 'white':
-                $this->bodyColour = $this->colours['white'];
+            case "white":
+                $this->bodyColour = $this->white;
                 break;
-            case 'black':
-                $this->bodyColour = $this->colours['black'];
+            case "black":
+                $this->bodyColour = $this->black;
                 break;
+            case "yellow":
+                $this->bodyColour = $this->yellow;
+                break;
+            case "green":
+                $this->bodyColour = $this->green;
+                break;
+            default: 
+                $this->bodyColour = $this->white;
         }
         switch ($this->footerColour) {
-            case 'red':
-                $this->footerColour = $this->colours['red'];
+            case "red":
+                $this->footerColour = $this->red;
                 break;            
-            case 'white':
-                $this->footerColour = $this->colours['white'];
+            case "white":
+                $this->footerColour = $this->white;
                 break;
-            case 'black':
-                $this->footerColour = $this->colours['black'];
+            case "black":
+                $this->footerColour = $this->black;
                 break;
+            case "yellow":
+                $this->footerColour = $this->yellow;
+                break;
+            case "green":
+                $this->footerColour = $this->green;
+                break;
+            default: 
+                $this->footerColour = $this->white;
         }
    }    
 
@@ -432,7 +474,7 @@ class Image
      * Check the positions chosen by the user for the various texts
      */
     function assignPosition()
-    {
+    {        
         if (!empty($this->titlePosition)) {
             if ($this->titlePosition == "left") $this->titlePosition = $this->topLeft();
             elseif ($this->titlePosition == "centre") $this->titlePosition = $this->topMiddle();
@@ -461,7 +503,34 @@ class Image
         }
     }
 
-    // Write on a canvas
+    function writeTextOnPic()
+    {
+        $this->getRandomWord();
+
+        $this->assignColour();
+
+        $image = imagecreatefrompng($this->resizeImage($this->imagePath));
+
+        // Get all the coordinates required to write text.
+        list($x, $y) = $this->titlePosition;
+        imagettftext($image, $this->headerFontSize, $this->headerAngle, $x, $y, $this->headerColour, $this->headerFontType, $this->wrappedHeader);
+
+        list($x, $y) = $this->bodyPosition;
+        imagettftext($image, $this->bodyFontSize, $this->bodyAngle, $x, $y, $this->bodyColour, $this->bodyFontType, $this->wrappedBody);
+
+        list($x, $y) = $this->footerPosition;
+        imagettftext($image, $this->footerFontSize, $this->footerAngle, $x, $y, $this->headerColour, $this->headerFontType, $this->wrappedFooter);
+
+        // Save the file and return to the user.
+        $storagePath = app_base_dir().'/file_storage/cards/'.$this->randomName.'.png';
+        return imagepng($this->image, $storagePath);
+
+    }
+
+    /*
+    * Since text can either be on a picture or on a colour canvas.
+    * This method is called to write texts on a colour canvas.
+    */
     function writeTextOnColourCanvas()
     {
         $backgroundColor = imagecolorallocate($this->image, 222,184,135);
@@ -470,24 +539,15 @@ class Image
         // Generate a random word for saving the image.
         $this->getRandomWord();
 
-        // Initialises the function to assign colours.
-        // $this->colours();
-
         // Determine the colour the user chose for various texts
-        $this->whichColour();
-
-        // Determine the positions the user chose and assign values.
-        $this->assignPosition();
-
-        // Ascertain and assign the relevant font type
-        //$this->assignFontType();
+        $this->assignColour();
 
         /*
         * Make $x and $y references to the coordinates of each text position
         */
         // Set header text position and write
         list($x, $y) = $this->titlePosition;
-        imagettftext($this->image, 20, 0, $x, $y, $this->headerColour, $this->headerFontType, $this->wrappedHeader);
+        imagettftext($this->image, $this->headerFontSize, $this->headerAngle, $x, $y, $this->headerColour, $this->headerFontType, $this->wrappedHeader);
 
         // Set body text position and write
         list($x, $y) = $this->bodyPosition;
@@ -497,11 +557,9 @@ class Image
         list($x, $y) = $this->footerPosition;
         imagettftext($this->image, $this->footerFontSize, $this->footerAngle, $x, $y, $this->footerColour, $this->footerFontType, $this->wrappedFooter);       
 
-        // // Save the file and return to the user.
-        $storagePath = app_base_dir().'/file_storage/cards/'.$this->randomName.'.jpg';
-        imagepng($this->image, $storagePath);
-        $msg = "here";
-        return $msg;
+        // Save the file and return to the user.
+        $storagePath = app_base_dir().'/file_storage/cards/'.$this->randomName.'.png';
+        return imagepng($this->image, $storagePath);        
     }
     
 }

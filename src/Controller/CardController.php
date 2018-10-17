@@ -33,8 +33,8 @@ class CardController
         
         // image object
         $image = new Image($texts);
-        
-        //var_dump($image->param);
+        $image->assignPosition();
+
         // Write text on image.
         return $image->writeTextOnColourCanvas();
     }
@@ -44,12 +44,6 @@ class CardController
      */
     function imageCanvas()
     {
-        // image object
-        $image = new Image();
-
-        // Storage object.
-        $storage = new Storage();
-
         // Read in the json file sent and decode it.
         $json = file_get_contents("php://input");
         $texts = json_decode($json, true);
@@ -59,25 +53,14 @@ class CardController
         // Save the uploaded to the system tmp_path
         $tmpName = tempnam('/tmp', 'meme-');
         file_put_contents($tmpName, file_get_contents($image_url));
+             
+        $image = new Image($texts);
 
         // Path the url of the source image
         $image->imageSource = $image_url;
 
-        // Pass the texts to the Storage Class
-        $storage->receiveTexts($texts);
-
         // Write text on the uploaded image.
-        $image->writeTextOnImageCanvas();
-
-        // Pass the file path to stored in the database.
-        $storage->file_path = $image->storagePath;
-
-        $this->filepath = & $storage->file_path;
-
-        //$storage->saveImage();
-        $storage->saveTexts();
-
-        return $storage->file_path;
+        $image->writeTextOnPic();
     }
 
     /*
