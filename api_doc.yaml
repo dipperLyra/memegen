@@ -1,0 +1,23 @@
+title: Meme-generator api
+description: This is the documentation for the meme-generator api
+contact:
+  name: Mobnia API support team
+  email: eche@mobnia.com
+version: 1.0.1
+name: meme-generator api support
+url: http://52.14.75.226/dev/api
+email: eche@mobnia.com
+
+/canvas:
+  post:
+    description: Returns the a coloured canvas with the specified texts on it.
+    responses:
+      '200':
+        description: A canvas with text, a card.
+
+/cards:
+  post:
+    description: Returns an image with the texts written over it.
+    responses:
+      '200':
+        description: An image with text.
