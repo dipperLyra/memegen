@@ -54,6 +54,11 @@ $klein->get('/card', function ($request, $response)
     $response->body($message);
 });
 
+// Get the api documentation
+$klein->get('/api', function ($request, $response){
+
+});
+
 // Update a card record
 $klein->put('cards/', function ()
 {
