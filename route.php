@@ -56,7 +56,7 @@ $klein->get('/card', function ($request, $response)
 
 // Get the api documentation
 $klein->get('/api', function ($request, $response){
-
+    include_once 'swagger.yaml';
 });
 
 // Update a card record

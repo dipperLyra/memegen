@@ -10,6 +10,7 @@ email: eche@mobnia.com
 
 /canvas:
   post:
+    content: text/x-yaml
     description: Returns the a coloured canvas with the specified texts on it.
     responses:
       '200':
@@ -17,6 +18,7 @@ email: eche@mobnia.com
 
 /cards:
   post:
+    content: text/x-yaml
     description: Returns an image with the texts written over it.
     responses:
       '200':
