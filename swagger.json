@@ -1,0 +1,48 @@
+{"openapi" : "3.0.1",
+"info" : {
+"title" : "defaultTitle",
+"description" : "defaultDescription",
+"version" : "0.1"
+},
+"servers" : [ {"schema" : {
+},
+"url" : "https://petstore.swagger.io"
+} ],
+"paths" : {
+"/canvascl" : {
+"get" : {
+"description" : "Auto generated using Swagger Inspector",
+"responses" : {
+"200" : {
+"description" : "Auto generated using Swagger Inspector",
+"content" : {
+"application/json" : {
+}
+}
+},
+  "/canvas": {
+    "post": {
+      "content": "application/json",
+      "description": "Returns the a coloured canvas with the specified texts on it.",
+      "responses": {
+        "200": {
+          "description": "A canvas with text, a card."
+        }
+      }
+    }
+  },
+  "/cards": {
+    "post": {
+      "content": "application/json",
+      "description": "Returns an image with the texts written over it.",
+      "responses": {
+        "200": {
+          "description": "An image with text."
+        }
+      }
+    }
+  }
+}
+}
+}
+}}
