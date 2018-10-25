@@ -1,0 +1,293 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is application generates a card using either an uploaded image or a coloured canvas",
+    "version": "1.0.0",
+    "title": "Meme-generator",
+    "contact": {
+      "email": "eche@mobnia.com"
+    }
+  },
+  "host": "52.14.75.226",
+  "tags": [
+    {
+      "name": "canvas",
+      "description": "Returns a card when provided text is written on colour canvas"
+    },
+    {
+      "name": "card",
+      "description": "Returns a card when provided texts are written on a provided image url"
+    }
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/canvas": {
+      "post": {
+        "tags": [
+          "canvas"
+        ],
+        "summary": "Supply writing parameters.",
+        "description": "",
+        "operationId": "writeOnCanvas",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Text and parameters for writing on canvas",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Canvas"
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/cards": {
+      "post": {
+        "tags": [
+          "card"
+        ],
+        "summary": "Supply writing parameters and image url.",
+        "description": "",
+        "operationId": "writeOnImage",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "A url of an image an image is required, texts and  parameters for writing on the image",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Card"
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Card": {
+      "type": "object",
+      "required": [
+        "image-url",
+        "title",
+        "body",
+        "footer",
+        "header_position",
+        "body_position",
+        "footer_position",
+        "header_colour",
+        "body_colour",
+        "footer_colour",
+        "hd_font_type",
+        "bd_font_type",
+        "ft_font_type",
+        "hd_font_size",
+        "bd_font_size",
+        "ft_font_size",
+        "hd_font_angle",
+        "bd_font_angle",
+        "ft_font_angle"
+      ],
+      "properties": {
+        "image_url": {
+          "type": "string",
+          "example": "http://https://www.google.com/search?q=image+of+elon+musk&safe=active&client=ubuntu&hs=D3x&channel=fs&tbm=isch&source=iu&ictx=1&fir=WcTJ9xZ9cRT2WM%253A%252CZAAl_BqpNnRsIM%252C_&usg=AI4_-kRNMcvz3o9j21TySgDUJEzKMX59uQ&sa=X&ved=2ahUKEwi9nIG5npPeAhUkK8AKHQgPA74Q9QEwAXoECAAQBg#"
+        },
+        "title": {
+          "type": "string",
+          "example": "I will be at the top of the card"
+        },
+        "body": {
+          "type": "string",
+          "example": "I will be at the middle of the card"
+        },
+        "footer": {
+          "type": "string",
+          "example": "I will be at the bottom of the card"
+        },
+        "header_position": {
+          "type": "string",
+          "example": "left or centre or right"
+        },
+        "body_position": {
+          "type": "string",
+          "example": "left or centre or right"
+        },
+        "footer_position": {
+          "type": "string",
+          "example": "left or centre or right"
+        },
+        "header_colour": {
+          "type": "string",
+          "example": "white, black, red, yellow, green"
+        },
+        "body_colour": {
+          "type": "string",
+          "example": "white, black, red, yellow, green"
+        },
+        "footer_colour": {
+          "type": "string",
+          "example": "white, black, red, yellow, green"
+        },
+        "hd_font_type": {
+          "type": "string",
+          "example": "aria, pacifico, prisma, franchise"
+        },
+        "bd_font_type": {
+          "type": "string",
+          "example": "aria, pacifico, prisma, franchise"
+        },
+        "ft_font_type": {
+          "type": "string",
+          "example": "aria, pacifico, prisma, franchise"
+        },
+        "hd_font_size": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "bd_font_size": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "ft_font_size": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "hd_font_angle": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "bd_font_angle": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "ft_font_angle": {
+          "type": "integer",
+          "format": "int16"
+        }
+      }
+    },
+    "Canvas": {
+      "type": "object",
+      "required": [
+        "title",
+        "body",
+        "footer",
+        "header_position",
+        "body_position",
+        "footer_position",
+        "header_colour",
+        "body_colour",
+        "footer_colour",
+        "hd_font_type",
+        "bd_font_type",
+        "ft_font_type",
+        "hd_font_size",
+        "bd_font_size",
+        "ft_font_size",
+        "hd_font_angle",
+        "bd_font_angle",
+        "ft_font_angle"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "I will be at the top of the card"
+        },
+        "body": {
+          "type": "string",
+          "example": "I will be at the middle of the card"
+        },
+        "footer": {
+          "type": "string",
+          "example": "I will be at the bottom of the card"
+        },
+        "header_position": {
+          "type": "string",
+          "example": "left or centre or right"
+        },
+        "body_position": {
+          "type": "string",
+          "example": "left or centre or right"
+        },
+        "footer_position": {
+          "type": "string",
+          "example": "left or centre or right"
+        },
+        "header_colour": {
+          "type": "string",
+          "example": "white, black, red, yellow, green"
+        },
+        "body_colour": {
+          "type": "string",
+          "example": "white, black, red, yellow, green"
+        },
+        "footer_colour": {
+          "type": "string",
+          "example": "white, black, red, yellow, green"
+        },
+        "hd_font_type": {
+          "type": "string",
+          "example": "aria, pacifico, prisma, franchise"
+        },
+        "bd_font_type": {
+          "type": "string",
+          "example": "aria, pacifico, prisma, franchise"
+        },
+        "ft_font_type": {
+          "type": "string",
+          "example": "aria, pacifico, prisma, franchise"
+        },
+        "hd_font_size": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "bd_font_size": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "ft_font_size": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "hd_font_angle": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "bd_font_angle": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "ft_font_angle": {
+          "type": "integer",
+          "format": "int16"
+        }
+      }
+    }
+  }
+}

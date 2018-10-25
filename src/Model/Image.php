@@ -419,16 +419,19 @@ class Image
        if ($this->headerFontType == "aria") $this->headerFontType = $this->aria;
        elseif ($this->headerFontType == "franchise") $this->headerFontType = $this->franchise;
        elseif ($this->headerFontType == "pacifico") $this->headerFontType = $this->pacifico;
+       elseif ($this->headerFontType == "prisma") $this->headerFontType = $this->prisma;
        else $this->headerFontType = $this->prisma;
 
        if ($this->bodyFontType == "aria") $this->bodyFontType = $this->aria;
        elseif ($this->bodyFontType == "franchise") $this->bodyFontType = $this->franchise;
        elseif ($this->bodyFontType == "pacifico") $this->bodyFontType = $this->pacifico;
+       elseif ($this->bodyFontType == "prisma") $this->bodyFontType = $this->prisma;
        else $this->bodyFontType = $this->prisma;
 
        if ($this->footerFontType == "aria") $this->footerFontType = $this->aria;
        elseif ($this->footerFontType == "franchise") $this->footerFontType = $this->franchise;
        elseif ($this->footerFontType == "pacifico") $this->footerFontType = $this->pacifico;
+       elseif ($this->footerFontType == "prisma") $this->footerFontType = $this->prisma;
        else $this->footerFontType = $this->prisma;
    }   
 

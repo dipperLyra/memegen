@@ -1,20 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: eche
- * Date: 6/29/18
- * Time: 4:59 PM
- */
 
-require_once __DIR__ . '/vendor/autoload.php';
+ require_once __DIR__ . '/vendor/autoload.php';
 
 use API\Controller\CardController;
 
-
 $klein = new \Klein\Klein();
 
-// Send the text to be written on the card.
-$klein->get('/canvas', function ($request, $response) use ($klein)
+
+/**
+ * Send the text to be written on the card.
+ */
+$klein->post('/canvas', function ($request, $response)
 {
     
     $message = ['message' => 'The image url is: '.'http://local.cardstorage.com/cards'];
@@ -26,7 +22,9 @@ $klein->get('/canvas', function ($request, $response) use ($klein)
     $response->body(json_encode($message));
 });
 
-// Send an image and text to be written on it.
+/**
+ *  Send the text to be written on the card.
+ */
 $klein->post('/cards', function ($request, $response)
 {
     $message = ['message' => 'The url to the resource is: '];
@@ -56,19 +54,8 @@ $klein->get('/card', function ($request, $response)
 
 // Get the api documentation
 $klein->get('/api', function ($request, $response){
-    include_once 'swagger.json';
+    header('vendor/dist/index.html');
 });
 
-// Update a card record
-$klein->put('cards/', function ()
-{
-    $cardContrl = new CardController();
-});
-
-// Delete a card record
-$klein->delete('cards/', function ()
-{
-    $cardContrl = new CardController();
-});
 
 $klein->dispatch();
