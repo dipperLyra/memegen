@@ -9,5 +9,4 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-include_once __DIR__ . '/../route.php';
-
+require_once __DIR__ . '/../route.php';

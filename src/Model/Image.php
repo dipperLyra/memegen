@@ -8,6 +8,8 @@
 
 namespace API\Model;
 
+use API\Controller\CardController;
+
 require_once __DIR__ . "/../../bootstrap.php";
 
 
@@ -55,6 +57,8 @@ class Image
     */
     private $imagePath;
     private $image;
+    private $imageExtension;
+    private $imageStoragePath;
 
     /*
     *   Properties to hold the paths to the various font files.
@@ -159,7 +163,7 @@ class Image
         * Assign the values to the corresponding class
         * properties that are required to be separate from the beginning.
         */
-        if (isset($this->param['image_url'])) $this->imagePath = $this->param['image_url'];
+        $this->imagePath = isset($this->param['image_url']) ? $this->param['image_url'] : '';
         if (isset($this->param['title'])) $this->text['title'] = $this->param['title'];
         if (isset($this->param['body'])) $this->text['body'] = $this->param['body'];
         if (isset($this->param['footer'])) $this->text['footer'] = $this->param['footer'];
@@ -180,7 +184,7 @@ class Image
         if (isset($this->param['bd_font_size'])) {
             $this->bodyFontSize = $this->param['bd_font_size'];
         } else {
-            $this->bodyFontSize = 20;
+            $this->bodyFontSize = 50;
         }
         if (isset($this->param['ft_font_size'])) {
             $this->footerFontSize = $this->param['ft_font_size'];
@@ -251,6 +255,7 @@ class Image
     function getImagePath()
     {
         if(isset($this->param['image'])) $this->imagePath = $this->param['image'];
+        $this->imageExtension = pathinfo($this->imagePath, PATHINFO_EXTENSION);
         return $this->imagePath;
     }
 
@@ -261,7 +266,7 @@ class Image
     function resizeImage()
     {
         // Get the dimension of the original image as an array
-        list($fileWidth, $fileHeight) = getimagesize($this->imagePath);
+        list($fileWidth, $fileHeight) = empty($this->imagePath) ? NULL : getimagesize($this->imagePath);
 
         // Check the ratio of the new image and reassign new width and height if necessary
         $ratio = $fileWidth / $fileHeight;
@@ -273,7 +278,10 @@ class Image
         }
 
         // Resample
-        $source = imagecreatefrompng($this->imagePath);
+        $source = strtolower($this->imageExtension) == "png" ? 
+        imagecreatefrompng($this->imagePath) : 
+        imagecreatefromjpeg($this->imagePath);
+
         $this->image = imagecreatetruecolor($this->width, $this->height);
 
         imagecopyresampled($this->image, $source, 0, 0, 0, 0, $this->width, $this->height, $fileWidth, $fileHeight);
@@ -476,7 +484,7 @@ class Image
 
         $this->assignColour();
 
-      //  $image = imagecreatefrompng($this->imagePath);
+        // $image = imagecreatefrompng($this->imagePath);
 
         // Get all the coordinates required to write text.
         list($x, $y) = $this->titlePosition;
@@ -489,8 +497,9 @@ class Image
         imagettftext($this->image, $this->footerFontSize, $this->footerAngle, $x, $y, $this->headerColour, $this->headerFontType, $this->wrappedFooter);
 
         // Save the file and return to the user.
-        $storagePath = app_base_dir().'/file_storage/cards/'.$this->randomName.'.png';
-        return imagepng($this->image, $storagePath);
+        $cardCtrl = new CardController();
+        $this->imageStoragePath = app_base_dir().'/file_storage/cards/'.$this->randomName.'.png';
+        return imagepng($this->image, $this->imageStoragePath);
     }
 
     /*
@@ -499,7 +508,7 @@ class Image
     */
     function writeTextOnColourCanvas()
     {
-        $backgroundColor = imagecolorallocate($this->image, 222,184,135);
+        $backgroundColor = imagecolorallocate($this->image, 10,10,56);
         imagefill($this->image, 0, 0, $backgroundColor);
 
         // Generate a random word for saving the image.

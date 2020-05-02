@@ -1,6 +1,6 @@
 <?php
 
- require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use API\Controller\CardController;
 
@@ -14,8 +14,6 @@ $klein->post('/canvas', function ($request, $response)
 {
     
     $message = ['message' => 'The image url is: '.'http://local.cardstorage.com/cards'];
-
- //   $klein->response()->body();
 
     $cardContrl = new CardController();
     $request->body($cardContrl->colourCanvas());
@@ -31,7 +29,7 @@ $klein->post('/cards', function ($request, $response)
 
     $cardContrl = new CardController();
     $request->body($cardContrl->imageCanvas());
-    echo ($message['message']."\n".$cardContrl->filepath);
+    return $message['message']."\n".$cardContrl->filepath;
 });
 
 // Get the list of cards available.
@@ -54,7 +52,7 @@ $klein->get('/card', function ($request, $response)
 
 // Get the api documentation
 $klein->get('/api', function ($request, $response){
-    header('vendor/dist/index.html');
+    include "public/dist/";
 });
 
 

@@ -7,7 +7,7 @@
  */
 
 return array(
-    'dsn' => 'mysql:host=localhost;dbname=memgen',
-    'username' => 'root',
+    'dsn' => 'mysql:host=localhost;dbname=cardbuilder',
+    'username' => 'echelon',
     'password' => 'andromeda@)!('
 );
